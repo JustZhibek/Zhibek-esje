@@ -17,7 +17,7 @@ class Genre(models.Model):
 
 
 class Movie(models.Model):
-    director = models.ForeignKey(Director, on_delete=models.PROTECT, null=True)
+    director = models.ForeignKey(Director, on_delete=models.CASCADE, null=True)
     genres = models.ManyToManyField(Genre, blank=True)
     name = models.CharField(max_length=100)
     duration = models.IntegerField(default=120)
