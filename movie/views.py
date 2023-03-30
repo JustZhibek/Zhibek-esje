@@ -22,6 +22,7 @@ def test_api_view(request):
 
 @api_view(['GET', 'POST'])
 def movie_list_api_view(request):
+    print(request.user)
     if request.method == 'GET':
         movies = Movie.objects.all()
         serializer = MovieSerializer(movies, many=True)
