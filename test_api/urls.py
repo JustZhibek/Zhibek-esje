@@ -20,7 +20,12 @@ from movie import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/test/', views.test_api_view),
-    path('api/v1/movies/', views.movie_list_api_view),
+    path('api/v1/movies/', views.MovieListCreateAPIView.as_view()),
     path('api/v1/movies/<int:id>/', views.movie_detail_api_view),
+    path('api/v1/directors/', views.DirectorListAPIView.as_view()),
+    path('api/v1/directors/<int:pk>/', views.DirectorDetailAPIView.as_view()),
+    path('api/v1/genres/', views.GenreAPIViewSet.as_view({'get': 'list', 'post': 'create'})),
+    path('api/v1/genres/<int:pk>/', views.GenreAPIViewSet.as_view({'get': 'retrieve', 'put': 'update',
+                                                                   'delete': 'destroy', 'patch': 'partial_update'})),
     path('api/v1/users/', include('users.urls'))
 ]

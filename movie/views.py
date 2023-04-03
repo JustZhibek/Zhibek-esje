@@ -3,8 +3,52 @@ from pprint import pprint
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from movie.models import Movie
-from movie.serializers import MovieSerializer, MovieValidateSerializer
+from movie.models import Movie, Director, Genre
+from movie.serializers import MovieSerializer, MovieValidateSerializer, DirectorSerializer, GenreSerializer
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.viewsets import ModelViewSet
+
+
+class DirectorListAPIView(ListCreateAPIView):
+    queryset = Director.objects.all()
+    serializer_class = DirectorSerializer
+    pagination_class = PageNumberPagination
+
+
+class DirectorDetailAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Director.objects.all()
+    serializer_class = DirectorSerializer
+
+
+class GenreAPIViewSet(ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    pagination_class = PageNumberPagination
+
+
+class MovieListCreateAPIView(ListCreateAPIView):
+    queryset = Movie.objects.all()
+    serializer_class = MovieSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = MovieValidateSerializer(data=request.data)  # {"name":"asdfasd", "director_id":100}
+        if not serializer.is_valid():
+            return Response(data={'errors': serializer.errors},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        pprint(serializer.validated_data)
+        name = serializer.validated_data.get('name')
+        duration = serializer.validated_data.get('duration')
+        description = serializer.validated_data.get('description')  # None
+        is_hit = serializer.validated_data.get('is_hit')  # None
+        rating = serializer.validated_data.get('rating')
+        director_id = serializer.validated_data.get('director_id')
+        genres = serializer.validated_data.get('genres')
+        movie = Movie.objects.create(name=name, duration=duration, description=description,
+                                     is_hit=is_hit, rating=rating, director_id=director_id)
+        movie.genres.set(genres)
+        movie.save()
+        return Response(data=MovieSerializer(movie).data)
 
 
 @api_view(['GET'])
@@ -18,33 +62,6 @@ def test_api_view(request):
         'dict': {'key': 'value'}
     }
     return Response(data=dict_)
-
-
-@api_view(['GET', 'POST'])
-def movie_list_api_view(request):
-    print(request.user)
-    if request.method == 'GET':
-        movies = Movie.objects.all()
-        serializer = MovieSerializer(movies, many=True)
-        return Response(data=serializer.data)
-    elif request.method == 'POST':
-        serializer = MovieValidateSerializer(data=request.data)  # {"name":"asdfasd", "director_id":100}
-        if not serializer.is_valid():
-            return Response(data={'errors': serializer.errors},
-                            status=status.HTTP_406_NOT_ACCEPTABLE)
-        pprint(serializer.validated_data)
-        name = serializer.validated_data.get('name')
-        duration = serializer.validated_data.get('duration')
-        description = serializer.validated_data.get('description') # None
-        is_hit = serializer.validated_data.get('is_hit')  # None
-        rating = serializer.validated_data.get('rating')
-        director_id = serializer.validated_data.get('director_id')
-        genres = serializer.validated_data.get('genres')
-        movie = Movie.objects.create(name=name, duration=duration, description=description,
-                                     is_hit=is_hit, rating=rating, director_id=director_id)
-        movie.genres.set(genres)
-        movie.save()
-        return Response(data=MovieSerializer(movie).data)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])

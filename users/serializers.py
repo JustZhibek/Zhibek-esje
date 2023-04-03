@@ -17,6 +17,7 @@ class UserLoginValidateSerializer(UserValidateSerializer):
 
 
 class UserCreateValidateSerializer(UserValidateSerializer):
+    is_active = serializers.BooleanField(required=False, default=False)
 
     def validate_username(self, username):
         try:
