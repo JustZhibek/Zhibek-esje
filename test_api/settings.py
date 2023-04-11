@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-g^s1p&e+)p(64#2l5+j&m=e%+)*p!e%*(o+&(z!=3j&_%*=&#i'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'movie',
     'rest_framework.authtoken',
-    'users'
+    'users',
+    'drf_yasg',
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -82,8 +83,12 @@ WSGI_APPLICATION = 'test_api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'test_data',
+        'USER': 'master_user',
+        'PASSWORD': '12345',
+        'PORT': 5432,
+        'HOST':'localhost'
     }
 }
 

@@ -1,23 +1,20 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework.exceptions import ValidationError
+from .models import ConfirmUser
 
 
-class UserValidateSerializer(serializers.Serializer):
+class UserLoginValidateSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
 
     def validate_password(self, password):
-        """ custom validation method """
         return password
 
-
-class UserLoginValidateSerializer(UserValidateSerializer):
-    pass
-
-
-class UserCreateValidateSerializer(UserValidateSerializer):
-    is_active = serializers.BooleanField(required=False, default=False)
+class UserCreateValidateSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+    is_active = serializers.BooleanField(default=False, required=False)
 
     def validate_username(self, username):
         try:
@@ -25,3 +22,15 @@ class UserCreateValidateSerializer(UserValidateSerializer):
         except User.DoesNotExist:
             return username
         raise ValidationError('User already exists!')
+
+
+class ConfirmUserSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    code = serializers.CharField(min_length=6, max_length=6)
+
+    def validate_user_id(self, user_id):
+        try:
+            ConfirmUser.objects.get(id=user_id)
+        except ConfirmUser.DoesNotExist:
+            return user_id
+        raise ValidationError("User_id does not exists!")
